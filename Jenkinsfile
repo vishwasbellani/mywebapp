@@ -32,14 +32,14 @@ sh 'npm test'
 }
 
 stage('Build Docker Image') {
-steps {
-script {
-// Extract version from package.json
-def appVersion = sh(script: "cat package.json | grep version | awk -F '\"' '{print $4}'", returnStdout: true).trim()
-// Build the Docker image
-docker.build("${IMAGE_NAME}:${appVersion}")
-}
-}
+    steps {
+        script {
+            // Extract version from package.json
+            def appVersion = sh(script: "cat package.json | grep version | awk -F '\"' '{print \$4}'", returnStdout: true).trim()
+            // Build the Docker image
+            docker.build("${IMAGE_NAME}:${appVersion}")
+        }
+    }
 }
 
 stage('Authenticate with GCP') {
