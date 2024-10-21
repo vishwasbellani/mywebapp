@@ -46,7 +46,7 @@ pipeline {
             steps {
                 script {
                     // Use the stored GCP service account key for authentication
-                    withCredentials([file(credentialsId: "${SERVICE_ACCOUNT_KEY}", variable: 'GCP_KEYFILE')]) {
+                    withCredentials([file(credentialsId: "${270963aa76f6a7df98d53cce2d3752fd60cf74ec}", variable: 'GCP_KEYFILE')]) {
                         // Authenticate with Google Cloud using the service account key
                         sh '''
                         gcloud auth activate-service-account --key-file=$GCP_KEYFILE
