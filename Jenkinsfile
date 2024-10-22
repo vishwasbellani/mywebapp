@@ -23,16 +23,16 @@ pipeline {
         }
 
         stage('Authenticate with GCP') {
-            steps {
-                script {
-                    // Authenticate with GCP using the service account key
-                    sh '''
-                    echo "Using credential file at: $GOOGLE_APPLICATION_CREDENTIALS"
-                    gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
-                    '''
-                }
-            }
-        }
+    steps {
+      script {
+        sh '''
+          echo Using credential file at: $GOOGLE_APPLICATION_CREDENTIALS
+          # Your other GCP commands using authorized credentials
+        '''
+      }
+    }
+  }
+
 
         stage('Tag & Push to GCP Artifact Registry') {
             steps {
