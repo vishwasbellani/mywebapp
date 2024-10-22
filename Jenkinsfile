@@ -27,11 +27,18 @@ pipeline {
         }
 
         stage('Install Dependencies') {
-            steps {
-                // Install dependencies
-                sh 'npm install'
+    steps {
+        script {
+            // Optionally remove existing node_modules if needed
+            sh 'rm -rf node_modules'
+            
+            // Increase npm install timeout and log output
+            timeout(time: 30, unit: 'MINUTES') {
+                sh 'npm install --verbose'
             }
         }
+    }
+}
 
         stage('Run Tests') {
             steps {
