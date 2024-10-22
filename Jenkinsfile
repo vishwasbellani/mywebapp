@@ -1,47 +1,62 @@
 pipeline {
-    agent any // Use any available agent to run the pipeline
+    agent any
+
     environment {
-        GOOGLE_APPLICATION_CREDENTIALS = credentials('gcp-credentials') // Use the correct credentials ID
+        GOOGLE_APPLICATION_CREDENTIALS = credentials('gcp-credentials') // Reference to the Jenkins credential for GCP
     }
+
     stages {
         stage('Checkout Code') {
             steps {
-                git branch: 'master', url: 'https://github.com/vishwasbellani/mywebapp.git'
+                // Checkout code from Git repository
+                git url: 'https://github.com/vishwasbellani/mywebapp.git', branch: 'master'
             }
         }
+
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build Docker image
-                    docker.build("your-node-app:1.0.0")
+                    // Build the Docker image
+                    sh 'docker build -t your-node-app:1.0.0 .'
                 }
             }
         }
+
         stage('Authenticate with GCP') {
             steps {
-                withCredentials([file(credentialsId: 'gcp-credentials', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
-                    // Print the path for debugging
-                    sh 'echo "Using credential file at: $GOOGLE_APPLICATION_CREDENTIALS"'
-                    
-                    // Authenticate with the GCP service account
-                    sh 'gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS"'
-                    
-                    // Set the GCP project ID
-                    sh 'gcloud config set project vishwas24'
-                    
-                    // Check the currently set project
-                    echo "Current Google Cloud Project: ${sh(script: 'gcloud config get-value project', returnStdout: true).trim()}"
+                script {
+                    // Authenticate with GCP using the service account key
+                    sh '''
+                    echo "Using credential file at: $GOOGLE_APPLICATION_CREDENTIALS"
+                    gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
+                    '''
                 }
             }
         }
+
         stage('Tag & Push to GCP Artifact Registry') {
             steps {
-                withCredentials([file(credentialsId: 'gcp-credentials', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
-                    // Tag and push the Docker image
-                    sh 'docker tag your-node-app:1.0.0 asia-south1-docker.pkg.dev/vishwas24/mynodeapp/your-node-app:1.0.0'
-                    sh 'docker push asia-south1-docker.pkg.dev/vishwas24/mynodeapp/your-node-app:1.0.0'
+                script {
+                    // Tag the image
+                    sh 'docker tag your-node-app:1.0.0 <asia-south1>-docker.pkg.dev/<vishwas24>/<mynodeapp>/your-node-app:1.0.0'
+                    
+                    // Push the image to GCP Artifact Registry
+                    sh 'docker push <asia-south1>-docker.pkg.dev/<vishwas24>/<mynodeapp>/your-node-app:1.0.0'
                 }
             }
         }
-    } 
-} 
+    }
+
+    post {
+        always {
+            // Clean up Docker images after the build
+            sh 'docker rmi your-node-app:1.0.0 || true'
+        }
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed.'
+        }
+    }
+}
