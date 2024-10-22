@@ -10,6 +10,15 @@ pipeline {
     }
 
     stages {
+        stage('Print Environment Variables') {
+            steps {
+                script {
+                    // Print the PATH variable to check for Git location
+                    sh 'echo $PATH'
+                }
+            }
+        }
+
         stage('Checkout Code') {
             steps {
                 // Checkout the Node.js app source code
@@ -32,26 +41,25 @@ pipeline {
         }
 
         stage('Build Docker Image') {
-    steps {
-        script {
-            // Define IMAGE_NAME if it's not defined elsewhere
-            def IMAGE_NAME = "your-node-app"
+            steps {
+                script {
+                    // Define IMAGE_NAME if it's not defined elsewhere
+                    def IMAGE_NAME = "your-node-app"
 
-            // Extract version from package.json
-            def appVersion = sh(script: "cat package.json | grep version | awk -F '\"' '{print \$4}'", returnStdout: true).trim()
+                    // Extract version from package.json
+                    def appVersion = sh(script: "cat package.json | grep version | awk -F '\"' '{print \$4}'", returnStdout: true).trim()
 
-            // Build the Docker image
-            docker.build("${IMAGE_NAME}:${appVersion}")
+                    // Build the Docker image
+                    docker.build("${IMAGE_NAME}:${appVersion}")
+                }
+            }
         }
-    }
-}
-
 
         stage('Authenticate with GCP') {
             steps {
                 script {
                     // Use the stored GCP service account key for authentication
-                    withCredentials([file(credentialsId: '${SERVICE_ACCOUNT_KEY}', variable: 'GCP_KEYFILE')]) {
+                    withCredentials([file(credentialsId: "${SERVICE_ACCOUNT_KEY}", variable: 'GCP_KEYFILE')]) {
                         // Authenticate with Google Cloud using the service account key
                         sh '''
                         gcloud auth activate-service-account --key-file=$GCP_KEYFILE
