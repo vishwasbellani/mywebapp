@@ -6,7 +6,7 @@ pipeline {
         REGION = 'asia-south1' // Corrected region
         REPOSITORY_NAME = 'mynodeapp' // Name of your artifact registry repository
         IMAGE_NAME = 'your-node-app'
-        SERVICE_ACCOUNT_KEY = 'ec01beac71f1d1fd77ad67ccf9162b4959eea37a ' // Jenkins credential ID for GCP service account key
+        SERVICE_ACCOUNT_KEY = 'ec01beac71f1d1fd77ad67ccf9162b4959eea37a' // Jenkins credential ID for GCP service account key
     }
 
     stages {
@@ -27,18 +27,18 @@ pipeline {
         }
 
         stage('Install Dependencies') {
-    steps {
-        script {
-            // Optionally remove existing node_modules if needed
-            sh 'rm -rf node_modules'
-            
-            // Increase npm install timeout and log output
-            timeout(time: 30, unit: 'MINUTES') {
-                sh 'npm install --verbose'
+            steps {
+                script {
+                    // Optionally remove existing node_modules if needed
+                    sh 'rm -rf node_modules'
+                    
+                    // Increase npm install timeout and log output
+                    timeout(time: 30, unit: 'MINUTES') {
+                        sh 'npm install --verbose'
+                    }
+                }
             }
         }
-    }
-}
 
         stage('Run Tests') {
             steps {
@@ -50,9 +50,6 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Define IMAGE_NAME if it's not defined elsewhere
-                    def IMAGE_NAME = "your-node-app"
-
                     // Extract version from package.json
                     def appVersion = sh(script: "cat package.json | grep version | awk -F '\"' '{print \$4}'", returnStdout: true).trim()
 
@@ -66,7 +63,7 @@ pipeline {
             steps {
                 script {
                     // Use the stored GCP service account key for authentication
-                    withCredentials([file(credentialsId: "${ec01beac71f1d1fd77ad67ccf9162b4959eea37a}", variable: 'GCP_KEYFILE')]) {
+                    withCredentials([file(credentialsId: "${SERVICE_ACCOUNT_KEY}", variable: 'GCP_KEYFILE')]) {
                         // Authenticate with Google Cloud using the service account key
                         sh '''
                         gcloud auth activate-service-account --key-file=$GCP_KEYFILE
@@ -81,6 +78,7 @@ pipeline {
         stage('Tag & Push to GCP Artifact Registry') {
             steps {
                 script {
+                    // Extract version again (not ideal, but it's necessary here)
                     def appVersion = sh(script: "cat package.json | grep version | awk -F '\"' '{print \$4}'", returnStdout: true).trim()
 
                     // Tag the Docker image for Artifact Registry
