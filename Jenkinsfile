@@ -17,11 +17,14 @@ pipeline {
                 }
             }
         }
-        stage('Authenticate with GCP') {
+       stage('Authenticate with GCP') {
     steps {
         withCredentials([file(credentialsId: 'gcp-credentials', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
+            // Print the path for debugging
+            sh 'echo "Using credential file at: $GOOGLE_APPLICATION_CREDENTIALS"'
+            
             // Authenticate with the GCP service account
-            sh 'gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS'
+            sh 'gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS"'
             // Set the GCP project ID
             sh 'gcloud config set project vishwas24'
             // Check the currently set project
