@@ -19,6 +19,8 @@ pipeline {
             }
         }
 
+    
+
         stage('Checkout Code') {
             steps {
                 // Checkout the Node.js app source code
@@ -58,23 +60,28 @@ pipeline {
                 }
             }
         }
-
+stage('Test Credentials') {
+    steps {
+        script {
+            echo "Available credentials:"
+            sh 'echo $GCP_KEYFILE' // This should show the path or an empty string
+        }
+    }
+}
         stage('Authenticate with GCP') {
-            steps {
-                script {
-                    // Use the stored GCP service account key for authentication
-                    withCredentials([file(credentialsId: "${SERVICE_ACCOUNT_KEY}", variable: 'GCP_KEYFILE')]) {
-                        // Authenticate with Google Cloud using the service account key
-                        sh '''
-                        gcloud auth activate-service-account --key-file=$GCP_KEYFILE
-                        gcloud config set project ${PROJECT_ID}
-                        gcloud auth configure-docker ${REGION}-docker.pkg.dev
-                        '''
-                    }
-                }
+    steps {
+        script {
+            withCredentials([file(credentialsId: 'ec01beac71f1d1fd77ad67ccf9162b4959eea37a', variable: 'GCP_KEYFILE')]) {
+                // Authenticate with Google Cloud using the service account key
+                sh '''
+                gcloud auth activate-service-account --key-file=$GCP_KEYFILE
+                gcloud config set project ${PROJECT_ID}
+                gcloud auth configure-docker ${REGION}-docker.pkg.dev
+                '''
             }
         }
-
+    }
+}
         stage('Tag & Push to GCP Artifact Registry') {
             steps {
                 script {
