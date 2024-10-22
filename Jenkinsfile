@@ -22,29 +22,35 @@ pipeline {
             }
         }
 
-        stage('Authenticate with GCP') {
+        sstage('Authenticate with GCP') {
     steps {
-      script {
-        sh '''
-          echo Using credential file at: $GOOGLE_APPLICATION_CREDENTIALS
-          # Your other GCP commands using authorized credentials
-        '''
-      }
-    }
-  }
-
-
-        stage('Tag & Push to GCP Artifact Registry') {
-            steps {
-                script {
-                    // Tag the image
-                    sh 'docker tag your-node-app:1.0.0 <asia-south1>-docker.pkg.dev/<vishwas24>/<mynodeapp>/your-node-app:1.0.0'
-                    
-                    // Push the image to GCP Artifact Registry
-                    sh 'docker push <asia-south1>-docker.pkg.dev/<vishwas24>/<mynodeapp>/your-node-app:1.0.0'
-                }
-            }
+        script {
+            // Activate the GCP service account
+            sh '''
+                echo Using credential file at: $GOOGLE_APPLICATION_CREDENTIALS
+                gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS"
+            '''
         }
+    }
+}
+
+
+       stage('Tag & Push to GCP Artifact Registry') {
+    steps {
+        script {
+            // Replace with your actual values
+            def gcpRegion = 'asia-south1'
+            def projectId = 'vishwas24'
+            def repository = 'mynodeapp'
+
+            // Tag the image
+            sh "docker tag your-node-app:1.0.0 ${gcpRegion}-docker.pkg.dev/${projectId}/${repository}/your-node-app:1.0.0"
+            
+            // Push the image to GCP Artifact Registry
+            sh "docker push ${gcpRegion}-docker.pkg.dev/${projectId}/${repository}/your-node-app:1.0.0"
+        }
+    }
+}
     }
 
     post {
