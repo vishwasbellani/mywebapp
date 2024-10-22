@@ -22,7 +22,7 @@ pipeline {
             }
         }
 
-        sstage('Authenticate with GCP') {
+        stage('Authenticate with GCP') {
     steps {
         script {
             // Activate the GCP service account
