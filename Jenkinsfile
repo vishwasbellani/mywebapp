@@ -35,15 +35,14 @@ pipeline {
 
 
         stage('Tag & Push to GCP Artifact Registry') {
-            steps {
-                script {
-                    // Use the GCP Artifact Registry URL (replace region and project-id accordingly)
-                    docker.withRegistry('https://asia-south1-docker.pkg.dev', 'gcp-credentials') {
-                        // Push the Docker image with the specified version
-                        docker.image('your-node-app:1.0.0').push('1.0.0')
-                    }
-                }
-            }
+    steps {
+        withCredentials([file(credentialsId: 'gcp-credentials', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
+            // Assuming you need to tag and push the Docker image here
+            sh 'docker tag your-node-app:1.0.0 <asia-south1-docker.pkg.dev/vishwas24/mynodeapp>/<vishwas24>/your-node-app:1.0.0'
+            sh 'docker push <gcp_artifact_registry_url>/<project_id>/your-node-app:1.0.0'
+        }
+    }
+}
         }
     } // Close stages
 } // Close pipeline
