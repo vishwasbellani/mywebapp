@@ -1,4 +1,5 @@
 pipeline {
+    agent any // Use any available agent to run the pipeline
     environment {
         GOOGLE_APPLICATION_CREDENTIALS = credentials('gcp-credentials') // Use the correct credentials ID
     }
@@ -37,5 +38,5 @@ pipeline {
                 }
             }
         }
-    } 
-} 
+    } // Close stages
+} // Close pipeline
