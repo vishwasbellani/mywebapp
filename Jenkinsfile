@@ -2,21 +2,20 @@ pipeline {
     agent any
 
     environment {
-        GOOGLE_APPLICATION_CREDENTIALS = credentials('gcp-credentials') // Ensure this matches your credentials ID
+        GOOGLE_APPLICATION_CREDENTIALS = credentials('gcp-credentials') // Ensure this matches your Jenkins credentials ID
     }
 
     stages {
-        stage('Checkout SCM') {
+        stage('Checkout Code') {
             steps {
-                checkout scm
+                git branch: 'master', url: 'https://github.com/vishwasbellani/mywebapp.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Building the Docker image
-                    sh 'docker build -t your-node-app:1.0.0 .'
+                    docker.build("your-node-app:1.0.0")
                 }
             }
         }
@@ -25,10 +24,9 @@ pipeline {
             steps {
                 withCredentials([file(credentialsId: 'gcp-credentials', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
                     script {
-                        // Activating service account
-                        sh 'gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}'
+                        sh 'gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS"'
                         sh 'gcloud config set project vishwas24'
-                        sh 'gcloud config get-value project'
+                        echo "Current Google Cloud Project: ${sh(script: 'gcloud config get-value project', returnStdout: true).trim()}"
                     }
                 }
             }
@@ -37,11 +35,9 @@ pipeline {
         stage('Tag & Push to GCP Artifact Registry') {
             steps {
                 script {
-                    // Tagging the Docker image
-                    sh 'docker tag your-node-app:1.0.0 asia-south1-docker.pkg.dev/vishwas24/mynodeapp/your-node-app:1.0.0'
-
-                    // Pushing the Docker image to Artifact Registry
-                    sh 'docker push asia-south1-docker.pkg.dev/vishwas24/mynodeapp/your-node-app:1.0.0'
+                    docker.withRegistry('https://asia-south1-docker.pkg.dev', 'gcp-credentials') {
+                        docker.image('your-node-app:1.0.0').push('1.0.0')
+                    }
                 }
             }
         }
@@ -49,14 +45,7 @@ pipeline {
 
     post {
         always {
-            // Clean up after the build
-            cleanWs()
-        }
-        success {
-            echo 'Build succeeded!'
-        }
-        failure {
-            echo 'Build failed!'
+            cleanWs() // Cleanup workspace after the build
         }
     }
 }
