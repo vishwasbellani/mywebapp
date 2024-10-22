@@ -49,7 +49,7 @@ pipeline {
 
     post {
         always {
-            // Clean up Docker images after the build
+            
             sh 'docker rmi your-node-app:1.0.0 || true'
         }
         success {
