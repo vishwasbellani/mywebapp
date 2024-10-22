@@ -17,32 +17,31 @@ pipeline {
                 }
             }
         }
-       stage('Authenticate with GCP') {
-    steps {
-        withCredentials([file(credentialsId: 'gcp-credentials', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
-            // Print the path for debugging
-            sh 'echo "Using credential file at: $GOOGLE_APPLICATION_CREDENTIALS"'
-            
-            // Authenticate with the GCP service account
-            sh 'gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS"'
-            // Set the GCP project ID
-            sh 'gcloud config set project vishwas24'
-            // Check the currently set project
-            echo "Current Google Cloud Project: ${sh(script: 'gcloud config get-value project', returnStdout: true).trim()}"
+        stage('Authenticate with GCP') {
+            steps {
+                withCredentials([file(credentialsId: 'gcp-credentials', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
+                    // Print the path for debugging
+                    sh 'echo "Using credential file at: $GOOGLE_APPLICATION_CREDENTIALS"'
+                    
+                    // Authenticate with the GCP service account
+                    sh 'gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS"'
+                    
+                    // Set the GCP project ID
+                    sh 'gcloud config set project vishwas24'
+                    
+                    // Check the currently set project
+                    echo "Current Google Cloud Project: ${sh(script: 'gcloud config get-value project', returnStdout: true).trim()}"
+                }
+            }
         }
-    }
-}
-
-
         stage('Tag & Push to GCP Artifact Registry') {
-    steps {
-        withCredentials([file(credentialsId: 'gcp-credentials', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
-            // Assuming you need to tag and push the Docker image here
-            sh 'docker tag your-node-app:1.0.0 <asia-south1-docker.pkg.dev/vishwas24/mynodeapp>/<vishwas24>/your-node-app:1.0.0'
-            sh 'docker push <gcp_artifact_registry_url>/<project_id>/your-node-app:1.0.0'
-        }
-    }
-}
+            steps {
+                withCredentials([file(credentialsId: 'gcp-credentials', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
+                    // Tag and push the Docker image
+                    sh 'docker tag your-node-app:1.0.0 asia-south1-docker.pkg.dev/vishwas24/mynodeapp/your-node-app:1.0.0'
+                    sh 'docker push asia-south1-docker.pkg.dev/vishwas24/mynodeapp/your-node-app:1.0.0'
+                }
+            }
         }
     } // Close stages
-} // Close pipeline
+} //
