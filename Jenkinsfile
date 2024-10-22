@@ -1,9 +1,10 @@
 pipeline {
-    agent any
+    environment {
+        GOOGLE_APPLICATION_CREDENTIALS = credentials('gcp-credentials') // Use the correct credentials ID
+    }
     stages {
         stage('Checkout Code') {
             steps {
-                // Correcting the git step to include branch (if needed)
                 git branch: 'master', url: 'https://github.com/vishwasbellani/mywebapp.git'
             }
         }
@@ -29,12 +30,11 @@ pipeline {
             steps {
                 script {
                     // Use the GCP Artifact Registry URL (replace region and project-id accordingly)
-                    docker.withRegistry('https://us-central1-docker.pkg.dev', 'gcp-credentials') {
-                        // Push the Docker image with the 'latest' tag
-                        docker.image('your-node-app:1.0.0').push('latest')
+                    docker.withRegistry('https://asia-south1-docker.pkg.dev', 'gcp-credentials') {
+                        // Push the Docker image with the specified version
+                        docker.image('your-node-app:1.0.0').push('1.0.0')
                     }
                 }
             }
         }
-    }
-}
+
