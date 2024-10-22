@@ -32,15 +32,20 @@ pipeline {
         }
 
         stage('Build Docker Image') {
-            steps {
-                script {
-                    // Extract version from package.json
-                    def appVersion = sh(script: "cat package.json | grep version | awk -F '\"' '{print \$4}'", returnStdout: true).trim()
-                    // Build the Docker image
-                    docker.build("${IMAGE_NAME}:${appVersion}")
-                }
-            }
+    steps {
+        script {
+            // Define IMAGE_NAME if it's not defined elsewhere
+            def IMAGE_NAME = "your-node-app"
+
+            // Extract version from package.json
+            def appVersion = sh(script: "cat package.json | grep version | awk -F '\"' '{print \$4}'", returnStdout: true).trim()
+
+            // Build the Docker image
+            docker.build("${IMAGE_NAME}:${appVersion}")
         }
+    }
+}
+
 
         stage('Authenticate with GCP') {
             steps {
