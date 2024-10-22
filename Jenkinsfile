@@ -70,8 +70,7 @@ stage('Test Credentials') {
 }
         stage('Authenticate with GCP') {
     steps {
-        script {
-            withCredentials([file(credentialsId: 'ec01beac71f1d1fd77ad67ccf9162b4959eea37a', variable: 'GCP_KEYFILE')]) {
+        script {withCredentials([file(credentialsId: 'YOUR_CREDENTIALS_ID', variable: 'GCP_KEYFILE')]) {
                 // Authenticate with Google Cloud using the service account key
                 sh '''
                 gcloud auth activate-service-account --key-file=$GCP_KEYFILE
