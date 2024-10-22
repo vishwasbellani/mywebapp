@@ -6,7 +6,7 @@ pipeline {
         REGION = 'asia-south1' // Corrected region
         REPOSITORY_NAME = 'mynodeapp' // Name of your artifact registry repository
         IMAGE_NAME = 'your-node-app'
-        SERVICE_ACCOUNT_KEY = 'your-service-account-key-id' // Jenkins credential ID for GCP service account key
+        SERVICE_ACCOUNT_KEY = 'ec01beac71f1d1fd77ad67ccf9162b4959eea37a ' // Jenkins credential ID for GCP service account key
     }
 
     stages {
@@ -66,7 +66,7 @@ pipeline {
             steps {
                 script {
                     // Use the stored GCP service account key for authentication
-                    withCredentials([file(credentialsId: "${105131395493878428174}", variable: 'GCP_KEYFILE')]) {
+                    withCredentials([file(credentialsId: "${ec01beac71f1d1fd77ad67ccf9162b4959eea37a}", variable: 'GCP_KEYFILE')]) {
                         // Authenticate with Google Cloud using the service account key
                         sh '''
                         gcloud auth activate-service-account --key-file=$GCP_KEYFILE
