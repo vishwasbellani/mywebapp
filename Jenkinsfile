@@ -22,14 +22,16 @@ pipeline {
             }
         }
 
-        stage('Authenticate with GCP') {
+       stage('Authenticate with GCP') {
     steps {
-        script {
-            // Activate the GCP service account
-            sh '''
-                echo Using credential file at: $GOOGLE_APPLICATION_CREDENTIALS
-                gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS"
-            '''
+        withCredentials([file(credentialsId: 'gcp-credentials', variable: 'GOOGLE_APPLICATION_CREDENTIALS')]) {
+            script {
+                // Activate the GCP service account
+                sh '''
+                    echo Using credential file at: $GOOGLE_APPLICATION_CREDENTIALS
+                    gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS"
+                '''
+            }
         }
     }
 }
