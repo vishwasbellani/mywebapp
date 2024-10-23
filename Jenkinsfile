@@ -22,6 +22,7 @@ pipeline {
                     sh '''
                         echo Using credential file at: $GOOGLE_APPLICATION_CREDENTIALS
                         gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS"
+                        gcloud auth configure-docker asia-south1-docker.pkg.dev
                     '''
                 }
             }
