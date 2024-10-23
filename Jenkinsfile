@@ -6,7 +6,9 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/vishwasbellani/mywebapp.git'
+                script {
+                    git url: 'https://github.com/vishwasbellani/mywebapp.git'
+                }
             }
         }
         stage('Build Docker Image') {
@@ -22,7 +24,6 @@ pipeline {
                     sh '''
                         echo Using credential file at: $GOOGLE_APPLICATION_CREDENTIALS
                         gcloud auth activate-service-account --key-file="$GOOGLE_APPLICATION_CREDENTIALS"
-                        gcloud auth configure-docker asia-south1-docker.pkg.dev
                     '''
                 }
             }
@@ -40,7 +41,9 @@ pipeline {
     }
     post {
         always {
-            cleanWs()
+            script {
+                cleanWs()
+            }
         }
     }
 }
